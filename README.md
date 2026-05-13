@@ -258,5 +258,3 @@ FAST NUCES Islamabad — Spring 2026
 ## License
 
 This project is licensed under the MIT License.
-
-```
