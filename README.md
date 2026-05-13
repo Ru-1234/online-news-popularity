@@ -1,223 +1,262 @@
-# 📰 Predicting Online News Popularity
+# Predicting Online News Popularity
 
-![License](https://img.shields.io/badge/License-MIT-yellow)
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![Scikit-Learn](https://img.shields.io/badge/Scikit--Learn-ML-orange)
+![Status](https://img.shields.io/badge/Status-Completed-success)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-> *Can we predict whether a news article will go viral — before it does?*
-> This project attempts to answer that question using statistical modeling,
-> hypothesis testing, and machine learning on real-world messy data.
+Machine learning and statistical analysis project using the UCI Online News Popularity dataset to predict article virality through regression and classification models.
 
----
-
-## 🎓 About
-
-This project was developed as a **semester project** for:
-
-| | |
-|---|---|
-| **Course** | Probability & Statistics (MT-2005) |
-| **University** | FAST NUCES Islamabad |
-| **Semester** | Spring 2026 |
-
-### 👩‍💻 Developed By
-
-Maham Anjum & Romaisa
+Developed for **Probability & Statistics (MT-2005)** at FAST NUCES Islamabad, Spring 2026.
 
 ---
 
-## 📦 The Dataset
+## Project Overview
 
-**UCI Online News Popularity Dataset**
-- ~39,000 news articles scraped from **Mashable**
+This project analyzes approximately 39,000 online news articles published by Mashable and investigates whether article popularity can be predicted before publication.
+
+The project combines:
+
+- Statistical preprocessing
+- Exploratory Data Analysis (EDA)
+- Hypothesis testing
+- Regression modeling
+- Classification modeling
+- Diagnostic analysis
+
+The dataset presents several real-world machine learning challenges including extreme skewness, multicollinearity, weak feature correlations, and large outlier presence.
+
+---
+
+## Dataset
+
+Dataset: Online News Popularity Dataset from the UCI Machine Learning Repository
+
+- ~39,000 news articles
 - 58 numerical input features
-- Target variable: `shares` (how many times the article was shared on social media)
+- Target variable: `shares`
+- Source: Mashable
 
-### 😤 Why This Dataset Was a Nightmare
+### Features Include
 
-This dataset looked clean on the surface but was full of statistical landmines:
-
-#### 🔴 Extreme Skewness
-The `shares` column had skewness exceeding 10. A tiny fraction of articles went
-viral (100,000+ shares) while the vast majority got under 2,000. This meant raw
-`shares` was completely unusable as a regression target — a plain linear model
-would be pulled entirely by outliers. We applied a **log(1+x) transformation**
-to bring the distribution closer to normal before modeling.
-
-#### 🔴 Highly Correlated Feature Pairs
-Several feature pairs turned out to carry nearly identical information:
-
-| Feature 1 | Feature 2 | Correlation |
-|---|---|---|
-| `n_unique_tokens` | `n_non_stop_unique_tokens` | 0.938 |
-| `n_non_stop_words` | `average_token_length` | 0.944 |
-| `kw_max_min` | `kw_avg_min` | 0.941 |
-
-All three exceeded our 0.90 threshold and one from each pair was dropped to
-reduce redundancy and multicollinearity.
-
-#### 🔴 Out-of-Range Token Ratios
-Features like `n_unique_tokens` and `n_non_stop_unique_tokens` are defined as
-ratios bounded between 0 and 1. A small number of rows had values exceeding 1.0,
-indicating data collection errors — these rows were removed during preprocessing.
-
-#### 🔴 Non-Informative Columns
-`url` (just an article identifier) and `timedelta` (days since data collection,
-not a property of the article itself) were dropped immediately as they carry
-zero predictive value.
-
-#### 🔴 Weak Individual Correlations
-No single feature correlated with `shares` above **0.11**. This is a known
-property of this dataset — news virality is driven by complex social and
-contextual factors no single numerical feature can capture alone.
-
-#### 🔴 Infinite VIF on LDA Features
-LDA topic scores (LDA_00 to LDA_04) must sum to 1 by definition, creating an
-exact linear dependency that produces infinite VIF values. Day-of-week binary
-flags have a similar near-perfect constraint (an article is published on exactly
-one day), causing mild multicollinearity across all seven indicators.
-
-#### 🔴 Massive Outlier Presence
-IQR-based outlier detection flagged 11.46% of articles as outliers in raw
-`shares`. Outliers were **retained** — viral articles represent genuine
-real-world events and carry authentic signal about extreme popularity. Removing
-them would bias the model toward ordinary content.
+- Article structure metrics
+- Keyword statistics
+- Topic distributions
+- Sentiment scores
+- Content channel indicators
+- Day-of-week publication indicators
 
 ---
 
-## 🔬 What We Did
+## Data Challenges
 
-### 🧹 1. Preprocessing
+| Issue | Handling |
+|---|---|
+| Extreme skewness in `shares` | Applied `log(1 + shares)` transformation |
+| Highly correlated feature pairs | Removed features with correlation > 0.90 |
+| Invalid token ratio values (>1.0) | Removed erroneous rows |
+| Non-informative columns (`url`, `timedelta`) | Dropped during preprocessing |
+| Multicollinearity in LDA features | Diagnosed using VIF |
+| Large outlier presence | Retained due to real-world significance |
+
+---
+
+## Preprocessing
+
 - Dropped `url` and `timedelta`
-- Removed rows with shares ≤ 0 (physically impossible — 0 rows affected)
-- Removed 1 row where token ratio features exceeded valid range (> 1.0)
-- Checked for zero-variance features — none found
-- Dropped one feature from each highly correlated pair (threshold > 0.90)
-- Final dataset: **39,643 articles, 56 features**
+- Removed rows with invalid ratio features
+- Checked for zero-variance features
+- Removed highly correlated predictors
+- Standardized features using Z-score normalization
+- Performed train-test split (`80/20`, `random_state=42`)
 
-### 📊 2. Exploratory Data Analysis
-- Descriptive statistics with skewness, kurtosis, median, IQR
-- Distribution histograms for 6 key variables with mean/median overlaid
-- Pearson correlation heatmap across 18 selected features
-- **Data-driven** scatter plots: top 7 features by absolute correlation with log(shares)
-- Median shares broken down by content channel and day of week
+### Final Dataset
 
-### 📐 3. Feature Engineering & Normalization
-- `log_shares` = log(1 + shares) as regression target (reduces skewness)
-- Binary `share_class`: High (1) if shares ≥ 1,400 (median), Low (0) otherwise
-- Median threshold chosen over mean — mean (≈3,395) is inflated by outliers and
-  would create severe class imbalance; median produces a balanced 53/47 split
-- 80/20 train-test split with `random_state=42`
-- Z-score standardization fitted on training data only (prevents data leakage)
-
-### 🤖 4. Modeling
-
-| Model | Task | Metric |
-|---|---|---|
-| Mean Baseline | Regression | RMSE = 0.9261, R² ≈ 0.00 |
-| **Linear Regression** | Predict log(shares) | **RMSE = 0.8648, R² = 0.1278** |
-| Majority Baseline | Classification | Accuracy = 52.60% |
-| **Logistic Regression** | Classify High vs Low | **Accuracy = 64.69%** |
-
-### 🧪 5. Hypothesis Testing
-
-Five tests conducted at significance level **α = 0.05**:
-
-| # | Question | Test Used | p-value | Decision |
-|---|---|---|---|---|
-| 1 | Do weekend articles get different shares? | Welch's t-test (two-tailed) | 0.000321 | Reject H₀ |
-| 2 | Is sentiment polarity correlated with shares? | Pearson correlation | 0.406433 | Fail to Reject H₀ |
-| 3 | Do articles with images get more shares? | Welch's t-test (one-tailed) | ≈ 0.000000 | Reject H₀ |
-| 4 | Do Tech articles get more shares than World? | Welch's t-test (one-tailed) | ≈ 0.000000 | Reject H₀ |
-| 5 | Is article word count correlated with shares? | Pearson correlation | 0.000001 | Reject H₀ |
-
-4 out of 5 null hypotheses rejected. **Sentiment polarity (T2) was not significant**
-(p = 0.406) — article tone alone does not drive virality.
-
-### 🔍 6. Model Diagnostics & Validation
-- **VIF analysis** — LDA features show infinite VIF (compositional constraint);
-  day-of-week features show mild multicollinearity
-- **IQR + z-score outlier detection** — 11.46% of articles flagged; retained intentionally
-- **Regression diagnostics** — residuals vs fitted (mild heteroscedasticity), Q-Q plot
-  (heavier tails than Gaussian), residual histogram
-- **Statsmodels OLS** on 5,000-sample subset — 12 out of 55 features statistically
-  significant (p < 0.05)
-- **Actual vs Predicted plot** — wide scatter confirms modest but real predictive power
+- **39,643 articles**
+- **56 features**
 
 ---
 
-## 📈 Key Findings
+## Exploratory Data Analysis
 
-- **Linear regression beats the mean baseline** across all metrics — RMSE drops 6.62%,
-  R² rises from ~0 to 0.1278. The model explains ~13% of variance in log(shares),
-  consistent with published research on this dataset.
+EDA included:
 
-- **`kw_avg_avg` is the strongest predictor** (coef = 0.405, p ≈ 6.27e-20) — articles
-  covering topics that historically attract shares are themselves more likely to be shared.
-  Past keyword popularity is the best available signal.
+- Distribution analysis
+- Skewness and kurtosis analysis
+- Correlation heatmaps
+- Scatter plots
+- Channel-wise popularity comparisons
+- Day-of-week popularity comparisons
 
-- **Sentiment polarity does not predict shares** (p = 0.406) — whether an article is
-  positive or negative in tone has no statistically significant effect on virality.
+### Key Observation
 
-- **Weekend publishing significantly increases shares** (p = 0.000321, Weekday median:
-  1,400 vs Weekend median: 1,900) — audience browsing peaks on weekends.
-
-- **Articles with images get significantly more shares** (p ≈ 0) — though both groups
-  share the same median (1,400), suggesting extreme viral values drive the mean difference.
-
-- **Tech channel outperforms World channel** (p ≈ 0, median 1,700 vs 1,100).
-
-- **Logistic Regression achieves 64.69% accuracy** — +12.09 percentage points over the
-  52.60% majority-class baseline. Higher recall on High class (0.69) than Low (0.60).
-
-- **Virality is inherently noisy** — ~87% of variance in shares remains unexplained.
-  External factors dominate but are absent from this dataset.
+No individual feature had strong predictive power (`max |r| ≈ 0.11`), indicating that online virality is driven by complex and noisy interactions rather than isolated article characteristics.
 
 ---
 
-## 🗂️ Repository Structure
+## Feature Engineering
+
+### Regression Target
+
+```python
+log_shares = log(1 + shares)
+````
+
+Used to reduce heavy right-skewness in the target distribution.
+
+### Classification Target
+
+```python
+share_class = 1 if shares >= median(shares) else 0
+```
+
+* High Popularity → 1
+* Low Popularity → 0
+
+Median threshold was chosen over mean to avoid severe class imbalance caused by viral outliers.
+
+---
+
+## Models
+
+| Model               | Task           | Performance                |
+| ------------------- | -------------- | -------------------------- |
+| Mean Baseline       | Regression     | RMSE = 0.9261              |
+| Linear Regression   | Regression     | RMSE = 0.8648, R² = 0.1278 |
+| Majority Baseline   | Classification | Accuracy = 52.60%          |
+| Logistic Regression | Classification | Accuracy = 64.69%          |
+
+---
+
+## Hypothesis Testing
+
+All tests used significance level:
+
+```text
+α = 0.05
+```
+
+| Question                                      | Test                | p-value    | Decision          |
+| --------------------------------------------- | ------------------- | ---------- | ----------------- |
+| Do weekend articles receive different shares? | Welch’s t-test      | 0.000321   | Reject H₀         |
+| Is sentiment polarity correlated with shares? | Pearson correlation | 0.406433   | Fail to Reject H₀ |
+| Do articles with images receive more shares?  | Welch’s t-test      | ≈ 0.000000 | Reject H₀         |
+| Do Tech articles outperform World articles?   | Welch’s t-test      | ≈ 0.000000 | Reject H₀         |
+| Is article word count correlated with shares? | Pearson correlation | 0.000001   | Reject H₀         |
+
+---
+
+## Key Findings
+
+* `kw_avg_avg` was the strongest predictor of article popularity.
+* Weekend articles received significantly higher engagement.
+* Articles containing images achieved higher average shares.
+* Tech articles significantly outperformed World news articles.
+* Sentiment polarity showed no statistically significant relationship with virality.
+* Logistic Regression outperformed the majority baseline by +12.09%.
+* Online news popularity remains highly noisy and difficult to predict.
+
+---
+
+## Model Diagnostics
+
+Performed diagnostic analysis including:
+
+* Variance Inflation Factor (VIF)
+* Residual vs fitted analysis
+* Q-Q plots
+* Residual histograms
+* Actual vs predicted visualization
+* Outlier detection using IQR and Z-score methods
+
+### Important Observation
+
+LDA topic features produced infinite VIF values because topic probabilities sum to 1, creating an exact linear dependency.
+
+---
+
+## Reproducibility
+
+* Random seed: `42`
+* Train/test split: `80/20`
+* Scaling fitted only on training data to prevent leakage
+
+---
+
+## Repository Structure
+
+```text
 online-news-popularity/
 
-├── OnlineNewsPopularity.csv       # Dataset ([UCI ML Repository](https://archive.ics.uci.edu/dataset/332/online+news+popularity))  
-├── OnlineNewsPopularity.names     # Feature descriptions                  
-├── README.md                                    
-├── SemesterProject.pdf            # Original project brief provided by course instructor             
-├── project.ipynb                  # Full annotated notebook with markdown explanations             
-├── report.pdf                     # Our written project report               
+├── OnlineNewsPopularity.csv
+├── OnlineNewsPopularity.names
+├── README.md
+├── project.ipynb
+├── report.pdf
+├── SemesterProject.pdf
+├── requirements.txt
+```
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
+
+### Clone Repository
 
 ```bash
-# Clone the repository
 git clone https://github.com/Ru-1234/online-news-popularity.git
-cd online-news-popularity  
+cd online-news-popularity
+```
 
-# Install dependencies
-pip install numpy pandas matplotlib seaborn scikit-learn statsmodels scipy jupyter
+### Install Dependencies
 
-# Launch the notebook
+```bash
+pip install -r requirements.txt
+```
+
+### Launch Notebook
+
+```bash
 jupyter notebook project.ipynb
 ```
 
 ---
 
-## 📚 Dependencies
+## Tech Stack
 
-| Library | Purpose |
-|---|---|
-| `pandas` | Data loading and manipulation |
-| `numpy` | Numerical computations |
-| `matplotlib` / `seaborn` | Visualizations |
-| `scikit-learn` | Linear & Logistic Regression, preprocessing, metrics |
-| `statsmodels` | OLS regression with p-values, VIF |
-| `scipy` | Hypothesis testing (Pearson correlation, Welch's t-test) |
+| Library      | Purpose                   |
+| ------------ | ------------------------- |
+| pandas       | Data manipulation         |
+| numpy        | Numerical computation     |
+| matplotlib   | Visualization             |
+| seaborn      | Statistical visualization |
+| scikit-learn | Machine learning models   |
+| scipy        | Hypothesis testing        |
+| statsmodels  | Statistical diagnostics   |
 
 ---
 
-## 📖 References
+## References
 
-- Fernandes, K., Vinagre, P., & Cortez, P. (2015). *A Proactive Intelligent Decision
-  Support System for Predicting the Popularity of Online News.*
-  [UCI ML Repository](https://archive.ics.uci.edu/dataset/332/online+news+popularity)
+Fernandes, K., Vinagre, P., & Cortez, P. (2015).
 
-  ![License](https://img.shields.io/badge/License-MIT-yellow)
+*A Proactive Intelligent Decision Support System for Predicting the Popularity of Online News.*
+
+UCI Machine Learning Repository.
+
+---
+
+## Authors
+
+* Maham Anjum
+* Romaisa
+
+FAST NUCES Islamabad — Spring 2026
+
+---
+
+## License
+
+This project is licensed under the MIT License.
+
+```
