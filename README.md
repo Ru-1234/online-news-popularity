@@ -162,11 +162,11 @@ significant relationship with article popularity.
 online-news-popularity/
 
 ├── OnlineNewsPopularity.csv       # Dataset ([UCI ML Repository](https://archive.ics.uci.edu/dataset/332/online+news+popularity))  
-├── OnlineNewsPopularity.names     # Feature descriptions 
-├── README.md                      
-├── SemesterProject.pdf            # Original project brief provided by course instructor 
-├── project.ipynb                  # Full annotated notebook with markdown explanations 
-├── report.pdf                     # Our written project report 
+├── OnlineNewsPopularity.names     # Feature descriptions                  
+├── README.md                                    
+├── SemesterProject.pdf            # Original project brief provided by course instructor             
+├── project.ipynb                  # Full annotated notebook with markdown explanations             
+├── report.pdf                     # Our written project report               
 
 ---
 
