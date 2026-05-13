@@ -1,9 +1,6 @@
 # 📰 Predicting Online News Popularity
 
-![Python](https://img.shields.io/badge/Python-3.10-blue)
-![Status](https://img.shields.io/badge/Status-Complete-brightgreen)
-![Course](https://img.shields.io/badge/Course-Probability%20%26%20Statistics-orange)
-![University](https://img.shields.io/badge/FAST-NUCES%20Islamabad-red)
+![License](https://img.shields.io/badge/License-MIT-yellow)
 
 > *Can we predict whether a news article will go viral — before it does?*
 > This project attempts to answer that question using statistical modeling,
@@ -222,3 +219,5 @@ jupyter notebook project.ipynb
 - Fernandes, K., Vinagre, P., & Cortez, P. (2015). *A Proactive Intelligent Decision
   Support System for Predicting the Popularity of Online News.*
   [UCI ML Repository](https://archive.ics.uci.edu/dataset/332/online+news+popularity)
+
+  ![License](https://img.shields.io/badge/License-MIT-yellow)
