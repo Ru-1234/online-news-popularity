@@ -160,12 +160,13 @@ significant relationship with article popularity.
 ## 🗂️ Repository Structure
 
 online-news-popularity/
-├── OnlineNewsPopularity.csv       # Dataset ([UCI ML Repository](https://archive.ics.uci.edu/dataset/332/online+news+popularity))
-├── OnlineNewsPopularity.names     # Feature descriptions
-├── SemesterProject.pdf            # Original project brief provided by course instructor
-├── project.ipynb                  # Full annotated notebook with markdown explanations
-├── report.pdf                     # Our written project report
-└── README.md                      # This file
+
+├── OnlineNewsPopularity.csv       # Dataset ([UCI ML Repository](https://archive.ics.uci.edu/dataset/332/online+news+popularity))  
+├── OnlineNewsPopularity.names     # Feature descriptions 
+├── README.md                      
+├── SemesterProject.pdf            # Original project brief provided by course instructor 
+├── project.ipynb                  # Full annotated notebook with markdown explanations 
+├── report.pdf                     # Our written project report 
 
 ---
 
@@ -173,7 +174,7 @@ online-news-popularity/
 
 ```bash
 # Clone the repository
-git clone https://github.com/Ru-1234/viral-or-void.git
+git clone https://github.com/Ru-1234/online-news-popularity.git
 cd viral-or-void
 
 # Install dependencies
